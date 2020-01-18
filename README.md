@@ -6,6 +6,10 @@ I got bored one day and decided I wanted to make a graph from my webpack builds 
 
 ## Set up
 
+### Graphviz
+> [Graphviz](http://www.graphviz.org/) is currently required, though I'm hoping to change this via the use of [Dagre](https://github.com/dagrejs/dagre).
+
+### Development
 - `npm i` install all the things.
 - `npm i -g` to install Widzard globally.
 - `widzard -h` to make sure everything is set up correctly.
