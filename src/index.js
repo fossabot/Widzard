@@ -30,8 +30,7 @@ const mkdirp = require('mkdirp');
 const slash = require('slash');
 const webpack = require('webpack');
 
-const pkg = require('../package.json');
-
+const pkg = require('./../package.json');
 const tarjan = require('./tarjan');
 
 const cli = meow(
