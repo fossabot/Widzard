@@ -190,12 +190,11 @@ module.exports = async function({
 					? () => true
 					: ({ id }) => !String(id).includes('node_modules'),
 			)
-			// .map(({ id, reasons }) => ({ [String(id)]: reasons }))
 			.reduce(function(acc, { id, reasons }) {
+				if (!acc[String(id)]) acc[String(id)] = [];
 				reasons.forEach(function({ moduleId }) {
 					const source = moduleId !== null ? moduleId : 'webpack';
 					if (!acc[String(source)]) acc[String(source)] = [];
-					if (!acc[String(id)]) acc[String(id)] = [];
 					if (!acc[String(source)].includes(String(id)))
 						acc[String(source)].push(String(id));
 				});
