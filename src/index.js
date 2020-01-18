@@ -198,8 +198,13 @@ function createGraph(modules, circular, config, options) {
 	});
 }
 function findDescendants(data, target) {
-	if (!data[String(target)])
+	if (!data[String(target)]) {
+		fs.writeFileSync(
+			path.join(outputDir, 'wizard.data.json'),
+			JSON.pretty(data),
+		);
 		throw new Error(`Unable to find target: ${target}`);
+	}
 	const result = {};
 
 	function lookup(t) {
