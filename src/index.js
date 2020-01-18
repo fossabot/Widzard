@@ -108,7 +108,9 @@ if (cli.flags.help) console.log(cli.help);
 if (typeof cli.flags.webpack === 'undefined')
 	throw new Error('No webpack path supplied.');
 
-const webpackConfigPath = path.join(process.cwd(), cli.flags.webpack);
+const cwd = process.cwd();
+
+const webpackConfigPath = path.join(cwd, cli.flags.webpack);
 const webpackConfig = require(webpackConfigPath); // eslint-disable-line security/detect-non-literal-require
 webpackConfig.devServer = undefined;
 
