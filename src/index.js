@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const rc = require('rc')('widzard');
 const graphviz = require('graphviz');
 const meow = require('meow');
 const chalk = require('chalk');
@@ -9,7 +10,6 @@ const ora = require('ora');
 const mkdirp = require('mkdirp');
 const slash = require('slash');
 const webpack = require('webpack');
-const rc = require('rc')('widzard');
 
 const pkg = require('../package.json');
 
