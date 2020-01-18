@@ -10,9 +10,9 @@
 	<a href="https://david-dm.org/jonathonhawkins92/widzard#info=devDependencies" target="_blank">
 		<img alg="Dev Dependencies status" src="http://img.shields.io/david/dev/jonathonhawkins92/widzard.svg?style=flat-square" />
 	</a>
-	<a href="https://www.npmjs.org/package/widzard" target="_blank">
+<!-- 	<a href="https://www.npmjs.org/package/widzard" target="_blank">
 		<img alg="NPM Status" src="http://img.shields.io/npm/dm/widzard.svg?style=flat-square" />
-	</a>
+	</a> -->
 </p>
 
 # Widzard
