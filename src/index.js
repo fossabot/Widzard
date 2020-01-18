@@ -24,13 +24,19 @@ const cli = meow(
 			- type: boolean
 
 		  ${chalk.yellow('--webpack')}
-		    - description: The Path to your webpack config file.
+			- description: The path to your webpack config file.
 			- alias: -w
 			- type: string
 
-		  ${chalk.yellow('--output')}
+		  ${chalk.yellow('--dir')}
+			- description: An output directory.
+			- alias: -d
+			- default: './'
+			- type: string
+
+		  ${chalk.yellow('--name')}
 			- description: The filename for the outputted file.
-			- alias: -o
+			- alias: -n
 			- default: 'widzard.svg'
 			- type: string
 
@@ -63,9 +69,14 @@ const cli = meow(
 				type: 'string',
 				alias: 'w',
 			},
-			output: {
+			dir: {
 				type: 'string',
-				alias: 'o',
+				alias: 'd',
+				default: './',
+			},
+			name: {
+				type: 'string',
+				alias: 'n',
 				default: 'widzard.svg',
 			},
 			target: {
