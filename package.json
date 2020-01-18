@@ -2,8 +2,10 @@
   "name": "widzard",
   "version": "1.0.0",
   "description": "Like Madge but made by an idiot.",
-  "main": "index.js",
-  "private": true,
+  "main": "./src/index.js",
+  "repository": "https://github.com/jonathonhawkins92/Widzard",
+  "homepage": "https://github.com/jonathonhawkins92/Widzard#readme",
+  "bugs": "https://github.com/jonathonhawkins92/Widzard/issues/",
   "engines": {
     "node": ">=12.0.0",
     "npm": ">=6.0.0"
@@ -38,5 +40,5 @@
     "prettier-eslint": "~9.0.1"
   },
   "author": "Jonathon Hawkins",
-  "license": "ISC"
+  "license": "BSD-3-Clause"
 }
