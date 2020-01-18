@@ -9,8 +9,8 @@ const rc = require('rc')('widzard', {
 	graphVisOptions: {
 		G: {
 			overlap: false,
-			pad: 0,
-			rankdir: 'LR',
+			pad: 1,
+			rankdir: 'TD',
 			layout: 'dot',
 			bgcolor: '#111111',
 		},
@@ -32,6 +32,8 @@ const rc = require('rc')('widzard', {
 const graphviz = require('graphviz');
 const ora = require('ora');
 const webpack = require('webpack');
+const slash = require('slash');
+const mkdirp = require('mkdirp');
 
 const tarjan = require('./tarjan');
 
@@ -59,10 +61,7 @@ function setNodeColor(node, color) {
 function createGraph(modules, circular, GVConfig, options) {
 	const g = graphviz.digraph('G');
 	const nodes = {};
-	const cyclicModules = [];
-	for (const cyclicRefs of circular) {
-		cyclicModules.concat(cyclicRefs);
-	}
+	const cyclicModules = circular.flat();
 
 	if (GVConfig.graphVizPath) {
 		g.setGraphVizPath(GVConfig.graphVizPath);
@@ -116,26 +115,62 @@ function findDescendants(data, target, outputDir) {
 	return result;
 }
 
-module.exports = async function({
-	webpackConfig,
-	target,
-	cyclicalRefs,
-	outputDir,
-	output,
-}) {
-	const { modules: webpackModules } = await new Promise(function(resolve) {
-		webpack(webpackConfig, function(err, stats) {
-			// Stats Object
-			if (err) {
-				throw new Error(err);
-			} else if (stats.hasErrors()) {
-				throw new Error('stats has errors');
-			} else if (typeof stats === 'undefined') {
-				throw new Error('stats is undefined');
-			}
-			resolve(stats.toJson());
+async function getModules(webpackPath, statsPath) {
+	if (typeof webpackPath !== 'undefined') {
+		const absolutePath = path.join(process.cwd(), webpackPath);
+		const webpackConfig = require(absolutePath); // eslint-disable-line security/detect-non-literal-require
+		webpackConfig.devServer = undefined;
+		const data = await new Promise(function(resolve) {
+			webpack(webpackConfig, function(err, stats) {
+				// Stats Object
+				if (err) {
+					throw new Error(err);
+				} else if (stats.hasErrors()) {
+					throw new Error('stats has errors');
+				} else if (typeof stats === 'undefined') {
+					throw new Error('stats is undefined');
+				}
+				resolve(stats.toJson());
+			});
 		});
-	});
+		fs.writeFileSync('./stats.json', JSON.stringify(data, null, 2));
+		const { modules } = data;
+		if (typeof modules === 'undefined')
+			throw new Error(`Unable to retrieve modules via: ${webpackConfig}`);
+		return modules;
+	}
+
+	if (typeof statsPath !== 'undefined') {
+		const absolutePath = path.join(process.cwd(), statsPath);
+		const { modules } = require(absolutePath); // eslint-disable-line security/detect-non-literal-require
+		if (typeof modules === 'undefined')
+			throw new Error(`Unable to retrieve modules via: ${statsPath}`);
+		return modules;
+	}
+
+	throw new Error('No valid input, either --webpack or --stats is required.');
+}
+
+function parseTarget(target) {
+	try {
+		const targetPath = path.resolve(process.cwd(), target);
+		const targetFullPath = require.resolve(targetPath);
+		const targetModule = '.' + targetFullPath.replace(process.cwd(), '');
+		return slash(targetModule);
+	} catch (e) {
+		throw new Error(`Unable to find target: ${target}`);
+	}
+}
+
+module.exports = async function({
+	webpack: webpackPath,
+	stats: statsPath,
+	dir,
+	name,
+	target,
+	cyclical,
+}) {
+	const webpackModules = await getModules(webpackPath, statsPath);
 	console.log('\n');
 	const spinner = ora({
 		spinner: {
@@ -167,15 +202,17 @@ module.exports = async function({
 				return acc;
 			}, {});
 
+		const outputDir = path.join(process.cwd(), dir);
+		if (!fs.existsSync(outputDir)) mkdirp.sync(outputDir); // eslint-disable-line security/detect-non-literal-fs-filename
 		const targetModules = target
-			? findDescendants(modules, target, outputDir)
+			? findDescendants(modules, parseTarget(target), outputDir)
 			: modules;
-		const cyclical = cyclicalRefs ? tarjan(targetModules) : [];
+		const cyclicalRelationships = cyclical ? tarjan(targetModules) : [];
 
 		spinner.text = 'Creating Graph';
 		const data = await createGraph(
 			targetModules,
-			cyclical,
+			cyclicalRelationships,
 			{
 				noDependencyColor: rc.noDependencyColor,
 				cyclicNodeColor: rc.cyclicNodeColor,
@@ -184,11 +221,12 @@ module.exports = async function({
 			rc.graphVisOptions,
 		);
 		spinner.text = 'Writing output';
-		fs.writeFileSync(output, data); // eslint-disable-line security/detect-non-literal-fs-filename
-		spinner.succeed(`Output: ${output}`);
-	} catch (e) {
+		const outputPath = path.join(outputDir, name);
+		fs.writeFileSync(outputPath, data); // eslint-disable-line security/detect-non-literal-fs-filename
+		spinner.succeed(`Output: ${outputPath}`);
+	} catch (exception) {
 		spinner.fail();
-		throw new Error(e);
+		throw exception;
 	}
 	console.log('\n');
 };
