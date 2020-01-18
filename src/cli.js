@@ -1,11 +1,6 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
-
 const meow = require('meow');
 const chalk = require('chalk');
-const mkdirp = require('mkdirp');
-const slash = require('slash');
 
 const pkg = require('./../package.json');
 const main = require('./main.js');
@@ -13,6 +8,7 @@ const main = require('./main.js');
 const cli = meow(
 	`
 		Version: ${chalk.yellow(pkg.version)}
+		Notes: Please supply either a --webpack or --stats argv.
 		Options:
 		  ${chalk.yellow('--help')}
 			- description: show the help text.
@@ -20,9 +16,20 @@ const cli = meow(
 			- default: false
 			- type: boolean
 
+		  ${chalk.yellow('--clear')}
+			- description: Clear the console.
+			- alias: -c
+			- default: false
+			- type: boolean
+
 		  ${chalk.yellow('--webpack')}
 			- description: The path to your webpack config file.
 			- alias: -w
+			- type: string
+
+		  ${chalk.yellow('--stats')}
+			- description: For if you already have a stats.json.
+			- alias: -s
 			- type: string
 
 		  ${chalk.yellow('--dir')}
@@ -43,12 +50,6 @@ const cli = meow(
 			- default: './src/index.js'
 			- type: string
 
-		  ${chalk.yellow('--clear')}
-			- description: Clear the console.
-			- alias: -c
-			- default: false
-			- type: boolean
-
 		  ${chalk.yellow('--cyclical')}
 			- description: Highlight cyclical dependencies.
 			- alias: -cyc
@@ -62,9 +63,18 @@ const cli = meow(
 				alias: 'h',
 				default: false,
 			},
+			clear: {
+				type: 'boolean',
+				alias: 'c',
+				default: false,
+			},
 			webpack: {
 				type: 'string',
 				alias: 'w',
+			},
+			stats: {
+				type: 'string',
+				alias: 's',
 			},
 			dir: {
 				type: 'string',
@@ -80,11 +90,6 @@ const cli = meow(
 				type: 'string',
 				alias: 't',
 				default: './src/index.js',
-			},
-			clear: {
-				type: 'boolean',
-				alias: 'c',
-				default: false,
 			},
 			cyclical: {
 				type: 'boolean',
@@ -102,32 +107,5 @@ process.on('uncaughtException', (err) => {
 
 if (cli.flags.clear) console.log('\u001b[2J\u001b[0;0H');
 if (cli.flags.help) console.log(cli.help);
-if (typeof cli.flags.webpack === 'undefined')
-	throw new Error('No webpack path supplied.');
 
-const cwd = process.cwd();
-
-const webpackConfigPath = path.join(cwd, cli.flags.webpack);
-const webpackConfig = require(webpackConfigPath); // eslint-disable-line security/detect-non-literal-require
-webpackConfig.devServer = undefined;
-
-const outputDir = path.join(cwd, cli.flags.dir);
-if (!fs.existsSync(outputDir)) mkdirp.sync(outputDir); // eslint-disable-line security/detect-non-literal-fs-filename
-const outputPath = path.join(outputDir, cli.flags.name);
-
-try {
-	const targetPath = path.resolve(cwd, cli.flags.target);
-	const targetFullPath = require.resolve(targetPath);
-	const targetModule = '.' + targetFullPath.replace(cwd, '');
-	cli.flags.target = slash(targetModule);
-} catch (e) {
-	throw new Error(`Unable to find target: ${cli.flags.target}`);
-}
-
-main({
-	webpackConfig,
-	target: cli.flags.target,
-	cyclicalRefs: cli.flags.cyclical,
-	outputDir,
-	output: outputPath,
-});
+main(cli.flags);
