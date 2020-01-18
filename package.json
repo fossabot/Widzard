@@ -2,7 +2,7 @@
   "name": "widzard",
   "version": "1.0.0",
   "description": "Like Madge but made by an idiot.",
-  "main": "./src/index.js",
+  "main": "./src/main.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/jonathonhawkins92/Widzard"
@@ -17,7 +17,7 @@
     "npm": ">=6.0.0"
   },
   "bin": {
-    "widzard": "./src/index.js"
+    "widzard": "./src/cli.js"
   },
   "scripts": {
     "start": "node src"
