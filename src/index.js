@@ -7,6 +7,7 @@ const meow = require('meow');
 const chalk = require('chalk');
 const ora = require('ora');
 const mkdirp = require('mkdirp');
+const slash = require('slash');
 const webpack = require('webpack');
 const rc = require('rc')('widzard');
 
@@ -118,6 +119,15 @@ webpackConfig.devServer = undefined;
 const outputDir = path.join(cwd, cli.flags.dir);
 if (!fs.existsSync(outputDir)) mkdirp.sync(outputDir); // eslint-disable-line security/detect-non-literal-fs-filename
 const outputPath = path.join(outputDir, cli.flags.name);
+
+try {
+	const targetPath = path.resolve(cwd, cli.flags.target);
+	const targetFullPath = require.resolve(targetPath);
+	const targetModule = '.' + targetFullPath.replace(cwd, '');
+	cli.flags.target = slash(targetModule);
+} catch (e) {
+	throw new Error(`Unable to find target: ${cli.flags.target}`);
+}
 
 JSON.pretty = (msg, fn = null, indent = 2) => JSON.stringify(msg, fn, indent);
 console.json = (msg, fn, indent) => console.log(JSON.pretty(msg, fn, indent));
