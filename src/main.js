@@ -6,26 +6,28 @@ const rc = require('rc')('widzard', {
 	noDependencyColor: '#cfffac',
 	cyclicNodeColor: '#ff6c60',
 	graphVizPath: false,
-	G: {
-		rankdir: 'LR',
-		layout: 'dot',
-		backgroundColor: '#111111',
-		overlap: false,
-		pad: 0.3,
+	graphVisOptions: {
+		G: {
+			overlap: false,
+			pad: 0,
+			rankdir: 'LR',
+			layout: 'dot',
+			bgcolor: '#111111',
+		},
+		E: {
+			color: '#757575',
+		},
+		N: {
+			fontname: 'Arial',
+			fontsize: '14px',
+			color: '#c6c5fe',
+			shape: 'box',
+			style: 'rounded',
+			height: 0,
+			fontcolor: '#c6c5fe',
+		},
+		type: 'svg',
 	},
-	E: {
-		edgeColor: '#757575',
-	},
-	N: {
-		fontName: 'Arial',
-		fontSize: '14px',
-		nodeColor: '#c6c5fe',
-		nodeShape: 'box',
-		nodeStyle: 'rounded',
-		height: 0,
-		fontcolor: '#c6c5fe',
-	},
-	graphOutputType: 'svg',
 });
 const graphviz = require('graphviz');
 const ora = require('ora');
@@ -54,7 +56,7 @@ function setNodeColor(node, color) {
  * @param  {Object} options
  * @return {Promise}
  */
-function createGraph(modules, circular, config, options) {
+function createGraph(modules, circular, GVConfig, options) {
 	const g = graphviz.digraph('G');
 	const nodes = {};
 	const cyclicModules = [];
@@ -62,24 +64,24 @@ function createGraph(modules, circular, config, options) {
 		cyclicModules.concat(cyclicRefs);
 	}
 
-	if (config.graphVizPath) {
-		g.setGraphVizPath(config.graphVizPath);
+	if (GVConfig.graphVizPath) {
+		g.setGraphVizPath(GVConfig.graphVizPath);
 	}
 
 	for (const id of Object.keys(modules)) {
 		nodes[String(id)] = nodes[String(id)] || g.addNode(id);
 
 		if (!modules[String(id)].length) {
-			setNodeColor(nodes[String(id)], config.noDependencyColor);
+			setNodeColor(nodes[String(id)], GVConfig.noDependencyColor);
 		} else if (cyclicModules.indexOf(id) >= 0) {
-			setNodeColor(nodes[String(id)], config.cyclicNodeColor);
+			setNodeColor(nodes[String(id)], GVConfig.cyclicNodeColor);
 		}
 
 		for (const depId of modules[String(id)]) {
 			nodes[String(depId)] = nodes[String(depId)] || g.addNode(depId);
 
 			if (!modules[String(depId)]) {
-				setNodeColor(nodes[String(depId)], config.noDependencyColor);
+				setNodeColor(nodes[String(depId)], GVConfig.noDependencyColor);
 			}
 
 			g.addEdge(nodes[String(id)], nodes[String(depId)]);
@@ -149,7 +151,9 @@ module.exports = async function({
 	try {
 		const modules = Object.values(webpackModules)
 			.filter(
-				({ id }) => !rc.includeNpm && !String(id).includes('node_modules'),
+				rc.includeNpm
+					? () => true
+					: ({ id }) => !String(id).includes('node_modules'),
 			)
 			// .map(({ id, reasons }) => ({ [String(id)]: reasons }))
 			.reduce(function(acc, { id, reasons }) {
@@ -173,19 +177,11 @@ module.exports = async function({
 			targetModules,
 			cyclical,
 			{
-				graphVizPath: rc.graphVizPath,
 				noDependencyColor: rc.noDependencyColor,
 				cyclicNodeColor: rc.cyclicNodeColor,
+				graphVizPath: rc.graphVizPath,
 			},
-			{
-				// Graph
-				G: rc.G,
-				// Edge
-				E: rc.E,
-				// Node
-				N: rc.N,
-				type: rc.graphOutputType,
-			},
+			rc.graphVisOptions,
 		);
 		spinner.text = 'Writing output';
 		fs.writeFileSync(output, data); // eslint-disable-line security/detect-non-literal-fs-filename
