@@ -6,6 +6,7 @@ const graphviz = require('graphviz');
 const meow = require('meow');
 const chalk = require('chalk');
 const ora = require('ora');
+const mkdirp = require('mkdirp');
 const webpack = require('webpack');
 const rc = require('rc')('widzard');
 
@@ -114,9 +115,9 @@ const webpackConfigPath = path.join(cwd, cli.flags.webpack);
 const webpackConfig = require(webpackConfigPath); // eslint-disable-line security/detect-non-literal-require
 webpackConfig.devServer = undefined;
 
-const outputDir = path.join(__dirname, './outputs');
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir); // eslint-disable-line security/detect-non-literal-fs-filename
-const outputPath = path.join(outputDir, cli.flags.output);
+const outputDir = path.join(cwd, cli.flags.dir);
+if (!fs.existsSync(outputDir)) mkdirp.sync(outputDir); // eslint-disable-line security/detect-non-literal-fs-filename
+const outputPath = path.join(outputDir, cli.flags.name);
 
 JSON.pretty = (msg, fn = null, indent = 2) => JSON.stringify(msg, fn, indent);
 console.json = (msg, fn, indent) => console.log(JSON.pretty(msg, fn, indent));
