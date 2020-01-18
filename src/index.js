@@ -2,7 +2,26 @@
 const fs = require('fs');
 const path = require('path');
 
-const rc = require('rc')('widzard');
+const rc = require('rc')('widzard', {
+	baseDir: null,
+	excludeRegExp: false,
+	fileExtensions: ['js'],
+	includeNpm: false,
+	rankdir: 'LR',
+	layout: 'dot',
+	fontName: 'Arial',
+	fontSize: '14px',
+	backgroundColor: '#111111',
+	nodeColor: '#c6c5fe',
+	nodeShape: 'box',
+	nodeStyle: 'rounded',
+	noDependencyColor: '#cfffac',
+	cyclicNodeColor: '#ff6c60',
+	edgeColor: '#757575',
+	graphVizOptions: false,
+	graphVizPath: false,
+	graphOutputType: 'svg',
+});
 const graphviz = require('graphviz');
 const meow = require('meow');
 const chalk = require('chalk');
@@ -132,29 +151,6 @@ try {
 JSON.pretty = (msg, fn = null, indent = 2) => JSON.stringify(msg, fn, indent);
 console.json = (msg, fn, indent) => console.log(JSON.pretty(msg, fn, indent));
 
-const defaultConfig = {
-	baseDir: null,
-	excludeRegExp: false,
-	fileExtensions: ['js'],
-	includeNpm: false,
-	rankdir: 'LR',
-	layout: 'dot',
-	fontName: 'Arial',
-	fontSize: '14px',
-	backgroundColor: '#111111',
-	nodeColor: '#c6c5fe',
-	nodeShape: 'box',
-	nodeStyle: 'rounded',
-	noDependencyColor: '#cfffac',
-	cyclicNodeColor: '#ff6c60',
-	edgeColor: '#757575',
-	graphVizOptions: false,
-	graphVizPath: false,
-	graphOutputType: 'svg',
-};
-
-const config = { ...defaultConfig, ...rc };
-
 /**
  * Set color on a node.
  * @param  {Object} node
@@ -173,7 +169,7 @@ function setNodeColor(node, color) {
  * @param  {Object} options
  * @return {Promise}
  */
-function createGraph(modules, circular, config, options) {
+function createGraph(modules, circular, GVConfig, options) {
 	const g = graphviz.digraph('G');
 	const nodes = {};
 	const cyclicModules = [];
@@ -181,24 +177,24 @@ function createGraph(modules, circular, config, options) {
 		cyclicModules.concat(cyclicRefs);
 	}
 
-	if (config.graphVizPath) {
-		g.setGraphVizPath(config.graphVizPath);
+	if (GVConfig.graphVizPath) {
+		g.setGraphVizPath(GVConfig.graphVizPath);
 	}
 
 	for (const id of Object.keys(modules)) {
 		nodes[String(id)] = nodes[String(id)] || g.addNode(id);
 
 		if (!modules[String(id)].length) {
-			setNodeColor(nodes[String(id)], config.noDependencyColor);
+			setNodeColor(nodes[String(id)], GVConfig.noDependencyColor);
 		} else if (cyclicModules.indexOf(id) >= 0) {
-			setNodeColor(nodes[String(id)], config.cyclicNodeColor);
+			setNodeColor(nodes[String(id)], GVConfig.cyclicNodeColor);
 		}
 
 		for (const depId of modules[String(id)]) {
 			nodes[String(depId)] = nodes[String(depId)] || g.addNode(depId);
 
 			if (!modules[String(depId)]) {
-				setNodeColor(nodes[String(depId)], config.noDependencyColor);
+				setNodeColor(nodes[String(depId)], GVConfig.noDependencyColor);
 			}
 
 			g.addEdge(nodes[String(id)], nodes[String(depId)]);
@@ -276,7 +272,7 @@ function findDescendants(data, target) {
 			? findDescendants(modules, cli.flags.target)
 			: modules;
 		const cyclical = cli.flags.cyclical ? tarjan(targetModules) : [];
-		const graphVizOptions = config.graphVizOptions || {};
+		const graphVizOptions = rc.graphVizOptions || {};
 
 		const options = {
 			// Graph
@@ -284,30 +280,30 @@ function findDescendants(data, target) {
 				...graphVizOptions.G,
 				overlap: false,
 				pad: 0.3,
-				rankdir: config.rankdir,
-				layout: config.layout,
-				bgcolor: config.backgroundColor,
+				rankdir: rc.rankdir,
+				layout: rc.layout,
+				bgcolor: rc.backgroundColor,
 			},
 			// Edge
 			E: {
 				...graphVizOptions.E,
-				color: config.edgeColor,
+				color: rc.edgeColor,
 			},
 			// Node
 			N: {
 				...graphVizOptions.N,
-				fontname: config.fontName,
-				fontsize: config.fontSize,
-				color: config.nodeColor,
-				shape: config.nodeShape,
-				style: config.nodeStyle,
+				fontname: rc.fontName,
+				fontsize: rc.fontSize,
+				color: rc.nodeColor,
+				shape: rc.nodeShape,
+				style: rc.nodeStyle,
 				height: 0,
-				fontcolor: config.nodeColor,
+				fontcolor: rc.nodeColor,
 			},
-			type: config.graphOutputType,
+			type: rc.graphOutputType,
 		};
 		spinner.text = 'Creating Graph';
-		const output = await createGraph(targetModules, cyclical, config, options);
+		const output = await createGraph(targetModules, cyclical, rc, options);
 		spinner.text = 'Writing output';
 		fs.writeFileSync(outputPath, output); // eslint-disable-line security/detect-non-literal-fs-filename
 		spinner.succeed(`Output: ${outputPath}`);
