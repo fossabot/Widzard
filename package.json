@@ -18,8 +18,10 @@
     "chalk": "~3.0.0",
     "graphviz": "0.0.9",
     "meow": "6.0.0",
+    "mkdirp": "~0.5.1",
     "ora": "4.0.3",
     "rc": "1.2.8",
+    "slash": "~3.0.0",
     "webpack": "4.41.5"
   },
   "devDependencies": {
