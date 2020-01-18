@@ -1,0 +1,64 @@
+{
+	"plugins": ["prettier", "security"],
+	"extends": [
+		"eslint:recommended",
+		"prettier",
+		"plugin:node/recommended",
+		"plugin:security/recommended",
+		"plugin:import/errors",
+		"plugin:import/warnings"
+	],
+	"parserOptions": {
+		"ecmaVersion": 10,
+		"sourceType": "module"
+	},
+	"env": {
+		"browser": false,
+		"es6": true,
+		"jest": false,
+		"jquery": false,
+		"node": true
+	},
+	"rules": {
+		"arrow-parens": [1],
+		"arrow-spacing": [1, { "before": true, "after": true }],
+		"comma-dangle": ["error", "always-multiline"],
+		"eol-last": 1,
+		"import/order": [
+			2,
+			{
+				"newlines-between": "always",
+				"groups": [
+					"builtin",
+					"external",
+					"internal",
+					"parent",
+					"sibling",
+					"index"
+				]
+			}
+		],
+		"keyword-spacing": [1, { "before": true, "after": true }],
+		"no-alert": 0,
+		"no-console": 0,
+		"no-debugger": 1,
+		"no-empty-function": [1, { "allow": ["arrowFunctions"] }],
+		"no-lone-blocks": 1,
+		"no-param-reassign": 0,
+		"no-trailing-spaces": [2, { "skipBlankLines": true }],
+		"no-underscore-dangle": 0,
+		"no-unexpected-multiline": 1,
+		"no-unreachable": 1,
+		"no-unused-vars": 1,
+		"no-useless-escape": 0,
+		"no-var": 1,
+		"prefer-const": 1,
+		"quotes": [
+			2,
+			"single",
+			{ "avoidEscape": true, "allowTemplateLiterals": true }
+		],
+		"semi": [2, "always"],
+		"strict": 0
+	}
+}
