@@ -3,8 +3,8 @@ const path = require('path');
 
 const rc = require('rc')('widzard', {
 	includeNpm: false,
-	noDependencyColor: '#cfffac',
-	cyclicNodeColor: '#ff6c60',
+	noDependencyColor: '#ffd700',
+	cyclicNodeColor: '#ff628c',
 	graphVizPath: false,
 	graphVisOptions: {
 		G: {
@@ -12,19 +12,19 @@ const rc = require('rc')('widzard', {
 			pad: 1,
 			rankdir: 'TD',
 			layout: 'dot',
-			bgcolor: '#111111',
+			bgcolor: '#1e1e3f',
 		},
 		E: {
-			color: '#757575',
+			color: '#a599e9',
 		},
 		N: {
 			fontname: 'Arial',
 			fontsize: '14px',
-			color: '#c6c5fe',
+			color: '#9effff',
 			shape: 'box',
 			style: 'rounded',
 			height: 0,
-			fontcolor: '#c6c5fe',
+			fontcolor: '#9effff',
 		},
 		type: 'svg',
 	},
