@@ -24,7 +24,15 @@ Think [Madge](https://www.npmjs.com/package/madge) mixed with [Webpack](https://
 
 I got bored one day and decided I wanted to make a graph from my webpack builds output, this is that, enjoy!
 
-<img alt="Widzards are cool" src="https://raw.githubusercontent.com/jonathonhawkins92/Widzard/master/example.png" height="320"/>
+```
+$ npm i -d widzard
+```
+
+```
+$ yarn add -d widzard
+```
+
+<img alt="Example graph" src="https://raw.githubusercontent.com/jonathonhawkins92/Widzard/master/example.png" height="320"/>
 
 ## 📈 Graphviz
 
