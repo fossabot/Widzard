@@ -38,6 +38,54 @@ $ yarn add -d widzard
 
 > [Graphviz](http://www.graphviz.org/) is currently required, though I'm hoping to change this via the use of [Dagre](https://github.com/dagrejs/dagre).
 
+## CLI
+
+*--help*
+ - description: show the help text.
+ - alias: -h
+ - default: false
+ - type: boolean
+
+*--clear*
+ - description: Clear the console.
+ - alias: -c
+ - default: false
+ - type: boolean
+
+*--webpack*
+ - description: The path to your webpack config file.
+ - alias: -w
+ - type: string
+
+*--stats*
+ - description: For if you already have a stats.json.
+ - alias: -s
+ - type: string
+
+*--dir*
+ - description: An output directory.
+ - alias: -d
+ - default: './'
+ - type: string
+
+*--name*
+ - description: The filename for the outputted file.
+ - alias: -n
+ - default: 'widzard.svg'
+ - type: string
+
+*--target*
+ - description: The target path relative to the webpack config.
+ - alias: -t
+ - default: './src/index.js'
+ - type: string
+
+*--cyclical*
+ - description: Highlight cyclical dependencies.
+ - alias: -cyc
+ - default: true
+ - type: boolean
+
 ## 🛠 Development
 
 - `npm i` install all the things.
