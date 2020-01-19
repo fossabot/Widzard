@@ -10,7 +10,7 @@ const rc = require('rc')('widzard', {
 		G: {
 			overlap: false,
 			pad: 1,
-			rankdir: 'TD',
+			rankdir: 'LR',
 			layout: 'dot',
 			bgcolor: '#1e1e3f',
 		},
@@ -50,17 +50,25 @@ function setNodeColor(node, color) {
 	node.set('fontcolor', color);
 }
 
+function getDir(path, delimiter = '/') {
+	const delimiterPosition = path.lastIndexOf(delimiter);
+	return path.substring(0, delimiterPosition);
+}
+
 /**
  * Creates the graphviz graph.
  * @param  {Object} modules
  * @param  {Array} circular
  * @param  {Object} config
  * @param  {Object} options
+ * @param  {Boolean} dirClustering
  * @return {Promise}
  */
-function createGraph(modules, circular, config, options) {
+function createGraph(modules, circular, config, options, dirClustering) {
 	const g = graphviz.digraph('G');
 	const nodes = {};
+	const clusters = {};
+	const clusterIds = {};
 	const cyclicModules = circular.flat();
 
 	if (config.graphVizPath) {
@@ -68,7 +76,21 @@ function createGraph(modules, circular, config, options) {
 	}
 
 	for (const id of Object.keys(modules)) {
-		nodes[String(id)] = nodes[String(id)] || g.addNode(id);
+		const dir = getDir(id);
+
+		if (dirClustering && typeof clusterIds[String(dir)] === 'undefined') {
+			const id = `cluster${g.clusterCount()}`;
+			clusterIds[String(dir)] = id;
+			clusters[String(id)] = g.addCluster(String(id));
+			clusters[String(id)].set('tooltip', dir);
+			clusters[String(id)].set('bgcolor', '#2d2b55');
+			clusters[String(id)].set('color', '#393939');
+		}
+
+		if (typeof nodes[String(id)] === 'undefined') {
+			const graph = dirClustering ? clusters[clusterIds[String(dir)]] : g;
+			nodes[String(id)] = graph.addNode(id);
+		}
 
 		if (!modules[String(id)].length) {
 			setNodeColor(nodes[String(id)], config.noDependencyColor);
@@ -77,13 +99,31 @@ function createGraph(modules, circular, config, options) {
 		}
 
 		for (const depId of modules[String(id)]) {
-			nodes[String(depId)] = nodes[String(depId)] || g.addNode(depId);
+			const depDir = getDir(depId);
 
-			if (!modules[String(depId)]) {
+			if (dirClustering && typeof clusterIds[String(depDir)] === 'undefined') {
+				const id = `cluster${g.clusterCount()}`;
+				clusterIds[String(depDir)] = id;
+				clusters[String(id)] = g.addCluster(String(id));
+				clusters[String(id)].set('tooltip', depDir);
+				clusters[String(id)].set('bgcolor', '#2d2b55');
+				clusters[String(id)].set('color', '#393939');
+			}
+
+			if (typeof nodes[String(depId)] === 'undefined') {
+				const graph = dirClustering ? clusters[clusterIds[String(depDir)]] : g;
+				nodes[String(depId)] = graph.addNode(depId);
+			}
+
+			if (typeof modules[String(depId)] === 'undefined') {
 				setNodeColor(nodes[String(depId)], config.noDependencyColor);
 			}
 
-			g.addEdge(nodes[String(id)], nodes[String(depId)]);
+			const targetGraph =
+				dirClustering && dir === depDir
+					? clusters[clusterIds[String(depDir)]]
+					: g;
+			targetGraph.addEdge(nodes[String(id)], nodes[String(depId)]);
 		}
 	}
 	return new Promise(function(resolve, reject) {
@@ -155,7 +195,7 @@ function parseTarget(target) {
 	try {
 		const targetPath = path.resolve(process.cwd(), target);
 		const targetFullPath = require.resolve(targetPath);
-		const targetModule = '.' + targetFullPath.substr(process.cwd().length);
+		const targetModule = '.' + targetFullPath.substring(process.cwd().length);
 		return slash(targetModule);
 	} catch (e) {
 		throw new Error(`Unable to find target: ${target}`);
@@ -169,6 +209,7 @@ module.exports = async function({
 	name,
 	target,
 	cyclical,
+	dirClustering,
 }) {
 	const webpackModules = await getModules(webpackPath, statsPath);
 	console.log('\n');
@@ -218,6 +259,7 @@ module.exports = async function({
 				graphVizPath: rc.graphVizPath,
 			},
 			rc.graphVisOptions,
+			dirClustering,
 		);
 		spinner.text = 'Writing output';
 		const outputPath = path.join(outputDir, name);

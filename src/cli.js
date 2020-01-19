@@ -55,6 +55,12 @@ const cli = meow(
 			- alias: -cyc
 			- default: true
 			- type: boolean
+
+		  ${chalk.yellow('--dir-clustering')}
+			- description: Cluster modules by parent directory.
+			- alias: -dirC
+			- default: false
+			- type: boolean
 	`,
 	{
 		flags: {
@@ -95,6 +101,11 @@ const cli = meow(
 				type: 'boolean',
 				alias: 'cyc',
 				default: true,
+			},
+			dirClustering: {
+				type: 'boolean',
+				alias: 'dirC',
+				default: false,
 			},
 		},
 	},

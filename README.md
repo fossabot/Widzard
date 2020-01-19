@@ -41,6 +41,7 @@ $ yarn add -d widzard
 ## .widzardrc
 
 There are a number of settings that can be passed via the `.rc` file, here is the default object:
+
 ```
 {
 	"includeNpm": false,
@@ -72,55 +73,71 @@ There are a number of settings that can be passed via the `.rc` file, here is th
 }
 
 ```
+
 Note all Graphvis options are subject to change if and when we move away from Graphvis, until that time any attribute can be passed to either the Graph, Edges or Nodes, a full reference of what attributes are available can be found [here](https://graphviz.gitlab.io/_pages/doc/info/attrs.html).
 
 ## CLI
 
-*--help*
- - description: Show the help text.
- - alias: -h
- - default: false
- - type: boolean
+_--help_
 
-*--clear*
- - description: Clear the console.
- - alias: -c
- - default: false
- - type: boolean
+- description: Show the help text.
+- alias: -h
+- default: false
+- type: boolean
 
-*--webpack*
- - description: The path to your webpack config file.
- - alias: -w
- - type: string
+_--clear_
 
-*--stats*
- - description: For if you already have a stats.json.
- - alias: -s
- - type: string
+- description: Clear the console.
+- alias: -c
+- default: false
+- type: boolean
 
-*--dir*
- - description: An output directory.
- - alias: -d
- - default: './'
- - type: string
+_--webpack_
 
-*--name*
- - description: The filename for the outputted file.
- - alias: -n
- - default: 'widzard.svg'
- - type: string
+- description: The path to your webpack config file.
+- alias: -w
+- type: string
 
-*--target*
- - description: The target path relative to the webpack config.
- - alias: -t
- - default: './src/index.js'
- - type: string
+_--stats_
 
-*--cyclical*
- - description: Highlight cyclical dependencies.
- - alias: -cyc
- - default: true
- - type: boolean
+- description: For if you already have a stats.json.
+- alias: -s
+- type: string
+
+_--dir_
+
+- description: An output directory.
+- alias: -d
+- default: './'
+- type: string
+
+_--name_
+
+- description: The filename for the outputted file.
+- alias: -n
+- default: 'widzard.svg'
+- type: string
+
+_--target_
+
+- description: The target path relative to the webpack config.
+- alias: -t
+- default: './src/index.js'
+- type: string
+
+_--cyclical_
+
+- description: Highlight cyclical dependencies.
+- alias: -cyc
+- default: true
+- type: boolean
+
+_--dir-clustering_
+
+- description: Cluster modules by parent directory.
+- alias: -dirC
+- default: false
+- type: boolean
 
 ## 🛠 Development
 
