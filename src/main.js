@@ -58,29 +58,29 @@ function setNodeColor(node, color) {
  * @param  {Object} options
  * @return {Promise}
  */
-function createGraph(modules, circular, GVConfig, options) {
+function createGraph(modules, circular, config, options) {
 	const g = graphviz.digraph('G');
 	const nodes = {};
 	const cyclicModules = circular.flat();
 
-	if (GVConfig.graphVizPath) {
-		g.setGraphVizPath(GVConfig.graphVizPath);
+	if (config.graphVizPath) {
+		g.setGraphVizPath(config.graphVizPath);
 	}
 
 	for (const id of Object.keys(modules)) {
 		nodes[String(id)] = nodes[String(id)] || g.addNode(id);
 
 		if (!modules[String(id)].length) {
-			setNodeColor(nodes[String(id)], GVConfig.noDependencyColor);
+			setNodeColor(nodes[String(id)], config.noDependencyColor);
 		} else if (cyclicModules.indexOf(id) >= 0) {
-			setNodeColor(nodes[String(id)], GVConfig.cyclicNodeColor);
+			setNodeColor(nodes[String(id)], config.cyclicNodeColor);
 		}
 
 		for (const depId of modules[String(id)]) {
 			nodes[String(depId)] = nodes[String(depId)] || g.addNode(depId);
 
 			if (!modules[String(depId)]) {
-				setNodeColor(nodes[String(depId)], GVConfig.noDependencyColor);
+				setNodeColor(nodes[String(depId)], config.noDependencyColor);
 			}
 
 			g.addEdge(nodes[String(id)], nodes[String(depId)]);
