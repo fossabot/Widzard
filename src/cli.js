@@ -11,7 +11,7 @@ const cli = meow(
 		Notes: Please supply either a --webpack or --stats argv.
 		Options:
 		  ${chalk.yellow('--help')}
-			- description: show the help text.
+			- description: Show the help text.
 			- alias: -h
 			- default: false
 			- type: boolean
