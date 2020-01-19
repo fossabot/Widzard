@@ -38,10 +38,46 @@ $ yarn add -d widzard
 
 > [Graphviz](http://www.graphviz.org/) is currently required, though I'm hoping to change this via the use of [Dagre](https://github.com/dagrejs/dagre).
 
+## .widzardrc
+
+There are a number of settings that can be passed via the `.rc` file, here is the default object:
+```
+{
+	"includeNpm": false,
+	"noDependencyColor": "#ffd700",
+	"cyclicNodeColor": "#ff628c",
+	"graphVizPath": false,
+	"graphVisOptions": {
+		"G": {
+			"overlap": false,
+			"pad": 1,
+			"rankdir": "TD",
+			"layout": "dot",
+			"bgcolor": "#1e1e3f"
+		},
+		"E": {
+			"color": "#a599e9"
+		},
+		"N": {
+			"fontname": "Arial",
+			"fontsize": "14px",
+			"color": "#9effff",
+			"shape": "box",
+			"style": "rounded",
+			"height": 0,
+			"fontcolor": "#9effff"
+		},
+		"type": "svg"
+	}
+}
+
+```
+Note all Graphvis options are subject to change if and when we move away from Graphvis, until that time any attribute can be passed to either the Graph, Edges or Nodes, a full reference of what attributes are available can be found [here](https://graphviz.gitlab.io/_pages/doc/info/attrs.html).
+
 ## CLI
 
 *--help*
- - description: show the help text.
+ - description: Show the help text.
  - alias: -h
  - default: false
  - type: boolean
