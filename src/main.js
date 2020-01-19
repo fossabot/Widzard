@@ -155,7 +155,7 @@ function parseTarget(target) {
 	try {
 		const targetPath = path.resolve(process.cwd(), target);
 		const targetFullPath = require.resolve(targetPath);
-		const targetModule = '.' + targetFullPath.replace(process.cwd(), '');
+		const targetModule = '.' + targetFullPath.substr(process.cwd().length);
 		return slash(targetModule);
 	} catch (e) {
 		throw new Error(`Unable to find target: ${target}`);
@@ -197,7 +197,7 @@ module.exports = async function({
 					if (!acc[String(source)]) acc[String(source)] = [];
 					if (!acc[String(source)].includes(String(id)))
 						acc[String(source)].push(String(id));
-				};
+				}
 				return acc;
 			}, {});
 
