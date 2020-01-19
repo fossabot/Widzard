@@ -1,7 +1,7 @@
 {
   "name": "widzard",
   "version": "1.0.0",
-  "description": "Creating Directed Graphs with webpack stats.",
+  "description": "Create Directed Graphs with webpack stats.",
   "main": "./src/main.js",
   "repository": {
     "type": "git",
