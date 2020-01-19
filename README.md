@@ -18,7 +18,7 @@
 
 # 🧙‍♂️ Widzard 
 
-Like [Madge](https://www.npmjs.com/package/madge) but made by an idiot.
+Think [Madge](https://www.npmjs.com/package/madge) mixed with [Webpack](https://webpack.js.org/) and you've got the idea.
 
 I got bored one day and decided I wanted to make a graph from my webpack builds output, this is that, enjoy!
 
