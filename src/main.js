@@ -192,12 +192,12 @@ module.exports = async function({
 			)
 			.reduce(function(acc, { id, reasons }) {
 				if (!acc[String(id)]) acc[String(id)] = [];
-				reasons.forEach(function({ moduleId }) {
+				for (const { moduleId } of reasons) {
 					const source = moduleId !== null ? moduleId : 'webpack';
 					if (!acc[String(source)]) acc[String(source)] = [];
 					if (!acc[String(source)].includes(String(id)))
 						acc[String(source)].push(String(id));
-				});
+				};
 				return acc;
 			}, {});
 
