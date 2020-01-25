@@ -61,6 +61,12 @@ const cli = meow(
 			- alias: -dirC
 			- default: false
 			- type: boolean
+
+		  ${chalk.yellow('--dir-clustering-nested')}
+			- description: Created hierarchical clusters of module directories.
+			- alias: -dirCN
+			- default: false
+			- type: boolean
 	`,
 	{
 		flags: {
@@ -105,6 +111,11 @@ const cli = meow(
 			dirClustering: {
 				type: 'boolean',
 				alias: 'dirC',
+				default: false,
+			},
+			dirClusteringNested: {
+				type: 'boolean',
+				alias: 'dirCN',
 				default: false,
 			},
 		},

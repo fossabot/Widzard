@@ -61,23 +61,19 @@ function createStandardGraph(modules, circular, config) {
 	const nodes = {};
 	const cyclicModules = circular.flat();
 
-	if (config.graphVizPath) {
-		g.setGraphVizPath(config.graphVizPath);
-	}
-
 	for (const id of Object.keys(modules)) {
 		nodes[String(id)] = nodes[String(id)] || g.addNode(id);
 
 		if (!modules[String(id)].length) {
 			setNodeColor(nodes[String(id)], config.noDependencyColor);
-		} else if (cyclicModules.indexOf(id) >= 0) {
+		} else if (cyclicModules.includes(id)) {
 			setNodeColor(nodes[String(id)], config.cyclicNodeColor);
 		}
 
 		for (const depId of modules[String(id)]) {
 			nodes[String(depId)] = nodes[String(depId)] || g.addNode(depId);
 
-			if (!modules[String(depId)]) {
+			if (typeof modules[String(depId)] === 'undefined') {
 				setNodeColor(nodes[String(depId)], config.noDependencyColor);
 			}
 
@@ -92,10 +88,6 @@ function createClusteredGraph(modules, circular, config) {
 	const clusters = {};
 	const clusterIds = {};
 	const cyclicModules = circular.flat();
-
-	if (config.graphVizPath) {
-		g.setGraphVizPath(config.graphVizPath);
-	}
 
 	for (const id of Object.keys(modules)) {
 		const dir = getDir(id);
@@ -167,6 +159,24 @@ function getGraph(modules, circular, config, dirClustering) {
  */
 function createGraph(modules, circular, config, options, dirClustering) {
 	const g = getGraph(modules, circular, config, dirClustering);
+function createGraph(
+	modules,
+	circular,
+	config,
+	options,
+	dirClustering,
+	dirClusteringNested,
+) {
+	const g = getGraph(
+		modules,
+		circular,
+		config,
+		dirClustering,
+		dirClusteringNested,
+	);
+	if (config.graphVizPath) {
+		g.setGraphVizPath(config.graphVizPath);
+	}
 	return new Promise(function(resolve, reject) {
 		g.output(options, resolve, function(code, out, err) {
 			reject(new Error(err));
@@ -251,6 +261,7 @@ module.exports = async function({
 	target,
 	cyclical,
 	dirClustering,
+	dirClusteringNested,
 }) {
 	if (rc.overwriteGraphType && typeof name !== 'undefined') {
 		const extPos = name.lastIndexOf('.') + 1;
@@ -306,6 +317,7 @@ module.exports = async function({
 			},
 			rc.graphVisOptions,
 			dirClustering,
+			dirClusteringNested,
 		);
 		spinner.text = 'Writing output';
 		const outputPath = path.join(outputDir, name);
