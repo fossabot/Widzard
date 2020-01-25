@@ -20,7 +20,8 @@
     "widzard": "./src/cli.js"
   },
   "scripts": {
-    "start": "node src"
+    "start": "node src",
+    "update": "npm-check --update"
   },
   "dependencies": {
     "chalk": "~3.0.0",
@@ -42,6 +43,7 @@
     "eslint-plugin-node": "~11.0.0",
     "eslint-plugin-prettier": "~3.1.2",
     "eslint-plugin-security": "~1.4.0",
+    "npm-check": "~5.9.0",
     "prettier": "~1.19.1",
     "prettier-eslint": "~9.0.1"
   },
@@ -55,7 +57,7 @@
   ],
   "keywords": [
     "graph",
-	"webpack",
-	"graphviz"
+    "webpack",
+    "graphviz"
   ]
 }
