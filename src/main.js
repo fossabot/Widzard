@@ -55,16 +55,37 @@ function getDir(path, delimiter = '/') {
 	return path.substring(0, delimiterPosition);
 }
 
-/**
- * Creates the graphviz graph.
- * @param  {Object} modules
- * @param  {Array} circular
- * @param  {Object} config
- * @param  {Object} options
- * @param  {Boolean} dirClustering
- * @return {Promise}
- */
-function createGraph(modules, circular, config, options, dirClustering) {
+function createStandardGraph(modules, circular, config) {
+	const g = graphviz.digraph('G');
+	const nodes = {};
+	const cyclicModules = circular.flat();
+
+	if (config.graphVizPath) {
+		g.setGraphVizPath(config.graphVizPath);
+	}
+
+	for (const id of Object.keys(modules)) {
+		nodes[String(id)] = nodes[String(id)] || g.addNode(id);
+
+		if (!modules[String(id)].length) {
+			setNodeColor(nodes[String(id)], config.noDependencyColor);
+		} else if (cyclicModules.indexOf(id) >= 0) {
+			setNodeColor(nodes[String(id)], config.cyclicNodeColor);
+		}
+
+		for (const depId of modules[String(id)]) {
+			nodes[String(depId)] = nodes[String(depId)] || g.addNode(depId);
+
+			if (!modules[String(depId)]) {
+				setNodeColor(nodes[String(depId)], config.noDependencyColor);
+			}
+
+			g.addEdge(nodes[String(id)], nodes[String(depId)]);
+		}
+	}
+	return g;
+}
+function createClusteredGraph(modules, circular, config) {
 	const g = graphviz.digraph('G');
 	const nodes = {};
 	const clusters = {};
@@ -78,7 +99,7 @@ function createGraph(modules, circular, config, options, dirClustering) {
 	for (const id of Object.keys(modules)) {
 		const dir = getDir(id);
 
-		if (dirClustering && typeof clusterIds[String(dir)] === 'undefined') {
+		if (typeof clusterIds[String(dir)] === 'undefined') {
 			const id = `cluster${g.clusterCount()}`;
 			clusterIds[String(dir)] = id;
 			clusters[String(id)] = g.addCluster(String(id));
@@ -88,8 +109,7 @@ function createGraph(modules, circular, config, options, dirClustering) {
 		}
 
 		if (typeof nodes[String(id)] === 'undefined') {
-			const graph = dirClustering ? clusters[clusterIds[String(dir)]] : g;
-			nodes[String(id)] = graph.addNode(id);
+			nodes[String(id)] = clusters[clusterIds[String(dir)]].addNode(id);
 		}
 
 		if (!modules[String(id)].length) {
@@ -101,7 +121,7 @@ function createGraph(modules, circular, config, options, dirClustering) {
 		for (const depId of modules[String(id)]) {
 			const depDir = getDir(depId);
 
-			if (dirClustering && typeof clusterIds[String(depDir)] === 'undefined') {
+			if (typeof clusterIds[String(depDir)] === 'undefined') {
 				const id = `cluster${g.clusterCount()}`;
 				clusterIds[String(depDir)] = id;
 				clusters[String(id)] = g.addCluster(String(id));
@@ -111,8 +131,9 @@ function createGraph(modules, circular, config, options, dirClustering) {
 			}
 
 			if (typeof nodes[String(depId)] === 'undefined') {
-				const graph = dirClustering ? clusters[clusterIds[String(depDir)]] : g;
-				nodes[String(depId)] = graph.addNode(depId);
+				nodes[String(depId)] = clusters[clusterIds[String(depDir)]].addNode(
+					depId,
+				);
 			}
 
 			if (typeof modules[String(depId)] === 'undefined') {
@@ -120,12 +141,31 @@ function createGraph(modules, circular, config, options, dirClustering) {
 			}
 
 			const targetGraph =
-				dirClustering && dir === depDir
-					? clusters[clusterIds[String(depDir)]]
-					: g;
+				dir === depDir ? clusters[clusterIds[String(depDir)]] : g;
 			targetGraph.addEdge(nodes[String(id)], nodes[String(depId)]);
 		}
 	}
+	return g;
+}
+
+function getGraph(modules, circular, config, dirClustering) {
+	if (dirClustering) {
+		return createClusteredGraph(modules, circular, config);
+	}
+	return createStandardGraph(modules, circular, config);
+}
+
+/**
+ * Creates the graphviz graph.
+ * @param  {Object} modules
+ * @param  {Array} circular
+ * @param  {Object} config
+ * @param  {Object} options
+ * @param  {Boolean} dirClustering
+ * @return {Promise}
+ */
+function createGraph(modules, circular, config, options, dirClustering) {
+	const g = getGraph(modules, circular, config, dirClustering);
 	return new Promise(function(resolve, reject) {
 		g.output(options, resolve, function(code, out, err) {
 			reject(new Error(err));
