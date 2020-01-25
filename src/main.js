@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const rc = require('rc')('widzard', {
+	overwriteGraphType: true,
 	includeNpm: false,
 	noDependencyColor: '#ffd700',
 	cyclicNodeColor: '#ff628c',
@@ -251,6 +252,11 @@ module.exports = async function({
 	cyclical,
 	dirClustering,
 }) {
+	if (rc.overwriteGraphType && typeof name !== 'undefined') {
+		const extPos = name.lastIndexOf('.') + 1;
+		const ext = name.substring(extPos);
+		rc.graphVisOptions.type = ext;
+	}
 	const webpackModules = await getModules(webpackPath, statsPath);
 	console.log('\n');
 	const spinner = ora({

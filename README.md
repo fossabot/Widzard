@@ -45,6 +45,7 @@ There are a number of settings that can be passed via the `.rc` file, here is th
 ```
 {
 	"includeNpm": false,
+	"overwriteGraphType": true, // overwrites graphVisOptions.type with the extension from --name argv
 	"noDependencyColor": "#ffd700",
 	"cyclicNodeColor": "#ff628c",
 	"graphVizPath": false,
