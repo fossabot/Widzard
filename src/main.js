@@ -141,8 +141,75 @@ function createClusteredGraph(modules, circular, config) {
 	return g;
 }
 
-function getGraph(modules, circular, config, dirClustering) {
-	if (dirClustering) {
+function createNestedGraph(modules, circular, config) {
+	const g = graphviz.digraph('G');
+	const nodes = {};
+	const clusters = {};
+	const clusterIds = {};
+	const cyclicModules = circular.flat();
+
+	for (const id of Object.keys(modules)) {
+		const dir = getDir(id);
+
+		if (typeof clusterIds[String(dir)] === 'undefined') {
+			const id = `cluster${g.clusterCount()}`;
+			clusterIds[String(dir)] = id;
+			clusters[String(id)] = g.addCluster(String(id));
+			clusters[String(id)].set('tooltip', dir);
+			clusters[String(id)].set('bgcolor', '#2d2b55');
+			clusters[String(id)].set('color', '#393939');
+		}
+
+		if (typeof nodes[String(id)] === 'undefined') {
+			nodes[String(id)] = clusters[clusterIds[String(dir)]].addNode(id);
+		}
+
+		if (!modules[String(id)].length) {
+			setNodeColor(nodes[String(id)], config.noDependencyColor);
+		} else if (cyclicModules.indexOf(id) >= 0) {
+			setNodeColor(nodes[String(id)], config.cyclicNodeColor);
+		}
+
+		for (const depId of modules[String(id)]) {
+			const depDir = getDir(depId);
+
+			if (typeof clusterIds[String(depDir)] === 'undefined') {
+				const id = `cluster${g.clusterCount()}`;
+				clusterIds[String(depDir)] = id;
+				clusters[String(id)] = g.addCluster(String(id));
+				clusters[String(id)].set('tooltip', depDir);
+				clusters[String(id)].set('bgcolor', '#2d2b55');
+				clusters[String(id)].set('color', '#393939');
+			}
+
+			if (typeof nodes[String(depId)] === 'undefined') {
+				nodes[String(depId)] = clusters[clusterIds[String(depDir)]].addNode(
+					depId,
+				);
+			}
+
+			if (typeof modules[String(depId)] === 'undefined') {
+				setNodeColor(nodes[String(depId)], config.noDependencyColor);
+			}
+
+			const targetGraph =
+				dir === depDir ? clusters[clusterIds[String(depDir)]] : g;
+			targetGraph.addEdge(nodes[String(id)], nodes[String(depId)]);
+		}
+	}
+	return g;
+}
+
+function getGraph(
+	modules,
+	circular,
+	config,
+	dirClustering,
+	dirClusteringNested,
+) {
+	if (dirClusteringNested) {
+		return createNestedGraph(modules, circular, config);
+	} else if (dirClustering) {
 		return createClusteredGraph(modules, circular, config);
 	}
 	return createStandardGraph(modules, circular, config);
@@ -157,8 +224,6 @@ function getGraph(modules, circular, config, dirClustering) {
  * @param  {Boolean} dirClustering
  * @return {Promise}
  */
-function createGraph(modules, circular, config, options, dirClustering) {
-	const g = getGraph(modules, circular, config, dirClustering);
 function createGraph(
 	modules,
 	circular,
