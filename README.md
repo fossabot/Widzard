@@ -9,6 +9,7 @@
     <a href="https://david-dm.org/jonathonhawkins92/widzard" target="_blank">
     	<img alt="Dependency status" src="http://img.shields.io/david/jonathonhawkins92/widzard.svg?style=flat-square" />
     </a>
+<a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fjonathonhawkins92%2FWidzard?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjonathonhawkins92%2FWidzard.svg?type=shield"/></a>
     <a href="https://david-dm.org/jonathonhawkins92/widzard#info=devDependencies" target="_blank">
     	<img alg="Dev Dependencies status" src="http://img.shields.io/david/dev/jonathonhawkins92/widzard.svg?style=flat-square" />
     </a>
@@ -144,3 +145,7 @@ _--dir-clustering_
 - `npm i` install all the things.
 - `npm i -g` to install Widzard globally.
 - `widzard -h` to make sure everything is set up correctly.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjonathonhawkins92%2FWidzard.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjonathonhawkins92%2FWidzard?ref=badge_large)
